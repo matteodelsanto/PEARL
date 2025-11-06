@@ -1,0 +1,64 @@
+__init__.py
+
+# Logs
+./logs
+logs/
+*.log
+*.err
+
+# Data directories
+resources/data/input/*
+resources/data/output/models/*
+resources/data/output/submission_models/*
+
+# Dependencies
+node_modules/
+venv/
+env/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Build and distribution
+build/
+dist/
+*.egg-info/
+.coverage
+.pytest_cache/
+.tox/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+#others 
+resources/data/output_gpt2_
+resources/data/output_llama_lora_
+resources/data/results_

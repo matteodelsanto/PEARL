@@ -1,0 +1,8 @@
+=== RISULTATI ORDINATI PER F1 SCORE MEDIO ===
+1. risultati_classificazione_TEST_10cn_6ad_ep_12b_whisper-large-v3-turbo_20w.csv
+   F1 Macro: 0.9151
+   Control: F1=0.9211, Prec=0.8750, Rec=0.9722
+   Non Healthy: F1=0.9091, Prec=0.9677, Rec=0.8571
+   Accuracy: 0.9155 (65/71 corretti)
+   Matrice: TP=30, FP=1, TN=35, FN=5
+
