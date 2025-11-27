@@ -13,7 +13,7 @@ from gpt2 import gpt2_faster_train
 from llama import llama_lora_faster_train_j
 
 
-def train_model(model_type, model_name, max_epochs, batch_size, train_set_file_path, base_output_dir, loo_folder=None, save_every=5):
+def train_model(model_type, model_name, max_epochs, batch_size, train_set_file_path, base_output_dir, loo_folder=None, save_every=5, gradient_checkpointing=True):
     """
     Addestra il modello salvando checkpoint incrementali
     
@@ -22,6 +22,7 @@ def train_model(model_type, model_name, max_epochs, batch_size, train_set_file_p
         train_set_file_path: Percorso al file di addestramento
         base_output_dir: Cartella base di output (senza suffisso _Xep)
         save_every: Salva il modello ogni queste epoche
+        gradient_checkpointing: Abilita gradient checkpointing per ridurre memoria
     """
     
     args = {
@@ -33,6 +34,7 @@ def train_model(model_type, model_name, max_epochs, batch_size, train_set_file_p
         "num_train_epochs": max_epochs,
         "remove_unused_columns": False,
         "seed": 42,
+        "gradient_checkpointing": gradient_checkpointing,
     }
 
     arguments_file = os.path.join(os.path.dirname(base_output_dir), 'args.json')
@@ -50,8 +52,24 @@ def train_model(model_type, model_name, max_epochs, batch_size, train_set_file_p
     else:
         llama_lora_faster_train_j.train_model(["", arguments_file], save_every_epochs=save_every, loo_folder=loo_folder)
     
+    # Libera esplicitamente la memoria GPU con pulizia aggressiva
+    import gc
+    gc.collect()
+    
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+        torch.cuda.synchronize()
+        # Forza la liberazione su tutti i device
+        for i in range(torch.cuda.device_count()):
+            with torch.cuda.device(i):
+                torch.cuda.empty_cache()
+        torch.cuda.ipc_collect()
+    
+    # Pausa breve per dare tempo al sistema di liberare la memoria
+    import time
+    time.sleep(2)
                
-def leave_one_out_trainingV1(model_type, model_name, base_train_set_file_path, base_train_model_output_dir, file_name, epoche, batch_size, save_every=5):
+def leave_one_out_trainingV1(model_type, model_name, base_train_set_file_path, base_train_model_output_dir, file_name, epoche, batch_size, save_every=5, gradient_checkpointing=True):
     
     for folder in tqdm(sorted(os.listdir(base_train_set_file_path)), desc="Leave-One-Out Training"):
         print(f"Training model on {folder}")
@@ -71,11 +89,12 @@ def leave_one_out_trainingV1(model_type, model_name, base_train_set_file_path, b
                     model_type=model_type,
                     model_name=model_name,
                     max_epochs=epoche,
-                    batch_size = batch_size,
+                    batch_size=batch_size,
                     train_set_file_path=train_set_file,
                     base_output_dir=model_base,
                     loo_folder=folder,
-                    save_every=save_every
+                    save_every=save_every,
+                    gradient_checkpointing=gradient_checkpointing
                 )
             else:
                 print(f"Il file {dataset_file} non esiste.")

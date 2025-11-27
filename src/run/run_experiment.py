@@ -6,13 +6,16 @@ from tqdm import tqdm
 import torch
 import gc
 
+# Configura PyTorch per evitare frammentazione memoria
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+
 # Add src path to PYTHONPATH for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import necessary modules
 from utils.models_training import train_model, leave_one_out_trainingV1
 
-from utils.evaluation import process_data_folders_multi_gpu, process_leave_one_out_multi_gpu
+from utils.evaluation_optimized import process_data_folders_multi_gpu, process_leave_one_out_multi_gpu
 
 from utils.classification import classify_all_patients, classify_all_patients_with_plot, calculate_f1
 
@@ -57,20 +60,25 @@ def main():
     control_class = 'cn'
     
     strategy_name = 'minor' 
+    #strategy_name = 'delta' 
     
-    cross_dev = True
+    cross_dev = False
     
     # training parameters
-    batch_size = 2  # set batch size # 12 for gpt2 2 for llama
-    #batch_size = 2  # set batch size
+    #batch_size = 12  # set batch size # 12 for gpt2 2 for llama
+    batch_size = 8  # set batch size
     max_epochs = 10  # set max epochs
     save_every = 2 # save model every these epochs
+    
+    # Memory optimization parameters
+    gradient_checkpointing = True
+    dataloader_num_workers = 0  # Evita memory leak con multiprocessing
     
     # Define variables used later in perplexity calculation
     w = 20
     leap = 0
     
-    do_train = False
+    do_train = True
     
     try:
         
@@ -88,8 +96,31 @@ def main():
                 batch_size=batch_size,
                 train_set_file_path=f'../resources/data/input/{dataset_name}/train/{control_class}/{text_folder}/',
                 base_output_dir=f'../resources/data/output/models/{dataset_name}/{model_type}/{control_class}_{text_folder}_{batch_size}b',
-                save_every=save_every
+                save_every=save_every,
+                gradient_checkpointing=gradient_checkpointing
             )
+            
+            
+            # Pulizia aggressiva della memoria
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+                # Forza la liberazione della cache
+                for i in range(torch.cuda.device_count()):
+                    with torch.cuda.device(i):
+                        torch.cuda.empty_cache()
+                torch.cuda.ipc_collect()
+            
+            logger.info("Memory cleaned after control model training")
+            logger.info(f"GPU memory allocated: {torch.cuda.memory_allocated()/1024**3:.2f} GB")
+            logger.info(f"GPU memory reserved: {torch.cuda.memory_reserved()/1024**3:.2f} GB")
+            
+            # Pausa per dare tempo al sistema di liberare completamente la memoria
+            import time
+            time.sleep(5)
+            
+            logger.info("Starting disease model training...")
             
             # Train disease model for max_epochs, saving every save_every epochs
             train_model(
@@ -99,11 +130,15 @@ def main():
                 batch_size=batch_size,
                 train_set_file_path=f'../resources/data/input/{dataset_name}/train/{disease_class}/{text_folder}/',
                 base_output_dir=f'../resources/data/output/models/{dataset_name}/{model_type}/{disease_class}_{text_folder}_{batch_size}b',
-                save_every=save_every
+                save_every=save_every,
+                gradient_checkpointing=gradient_checkpointing
             )
             
             gc.collect()
-            torch.cuda.empty_cache()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+                
         
         
         logger.info("Training completed successfully!")
@@ -231,6 +266,7 @@ def main():
                 max_epochs,
                 batch_size,
                 save_every=save_every,
+                gradient_checkpointing=gradient_checkpointing
             )
             
             gc.collect()
@@ -249,7 +285,8 @@ def main():
                 "test_text.txt",
                 max_epochs,
                 batch_size,
-                save_every=save_every
+                save_every=save_every,
+                gradient_checkpointing=gradient_checkpointing
             )
             
             gc.collect()

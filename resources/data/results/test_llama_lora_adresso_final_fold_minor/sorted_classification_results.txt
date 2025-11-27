@@ -5,4 +5,3 @@
    Non Healthy: F1=0.8406, Prec=0.8529, Rec=0.8286
    Accuracy: 0.8451 (60/71 corretti)
    Matrice: TP=29, FP=5, TN=31, FN=6
-
