@@ -8,6 +8,7 @@ logs/
 
 # Data directories
 resources/data/input/*
+resources/data/output
 resources/data/output/models/*
 resources/data/output/submission_models/*
 resources/data/output/classifier_results/*
