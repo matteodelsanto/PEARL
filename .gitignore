@@ -10,6 +10,9 @@ logs/
 resources/data/input/*
 resources/data/output/models/*
 resources/data/output/submission_models/*
+resources/data/output/classifier_results/*
+resources/data/output/feature_dataset/*
+resources/data/output/surprisal_values/*
 
 # Dependencies
 node_modules/

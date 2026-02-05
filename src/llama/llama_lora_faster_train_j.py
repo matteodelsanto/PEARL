@@ -322,9 +322,9 @@ def train_model(args, save_every_epochs=0, loo_folder=None):
         lora_alpha=16,
         #lora_dropout=0.1,
         lora_dropout=0.15,
-        target_modules=["q_proj", "v_proj"],
+        #target_modules=["q_proj", "v_proj"],
         #target_modules=["q_proj", "k_proj", "v_proj", "o_proj"]
-        #target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj"]
+        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj"]
     )
     model = get_peft_model(model, peft_config)
     

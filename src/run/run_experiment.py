@@ -46,11 +46,11 @@ def main():
     
     logger.info("Starting complete experiment")
     
-    #model_type = 'gpt2'  # 'gpt2' or 'llama_lora'
-    model_type = 'llama_lora'
+    model_type = 'gpt2'  # 'gpt2' or 'llama_lora'
+    #model_type = 'llama_lora'
 
-    #model_name = 'openai-community/gpt2'
-    model_name = 'meta-llama/Llama-3.2-1B'
+    model_name = 'openai-community/gpt2'
+    #model_name = 'meta-llama/Llama-3.2-1B'
     
     dataset_name = 'adresso_final_fold' 
     
@@ -59,16 +59,16 @@ def main():
     disease_class = 'ad'  
     control_class = 'cn'
     
-    strategy_name = 'minor' 
-    #strategy_name = 'delta' 
+    #strategy_name = 'minor' 
+    strategy_name = 'delta' 
     
     cross_dev = False
     
     # training parameters
-    #batch_size = 12  # set batch size # 12 for gpt2 2 for llama
-    batch_size = 8  # set batch size
-    max_epochs = 10  # set max epochs
-    save_every = 2 # save model every these epochs
+    batch_size = 24  # set batch size # 12 for gpt2 2 for llama
+    #batch_size = 8  # set batch size
+    max_epochs = 20  # set max epochs
+    save_every = 1 # save model every these epochs
     
     # Memory optimization parameters
     gradient_checkpointing = True
@@ -89,16 +89,16 @@ def main():
             logger.info("=" * 50)
             
             # Train control model for max_epochs, saving every save_every epochs
-            train_model(
-                model_type=model_type,
-                model_name=model_name,
-                max_epochs=max_epochs,
-                batch_size=batch_size,
-                train_set_file_path=f'../resources/data/input/{dataset_name}/train/{control_class}/{text_folder}/',
-                base_output_dir=f'../resources/data/output/models/{dataset_name}/{model_type}/{control_class}_{text_folder}_{batch_size}b',
-                save_every=save_every,
-                gradient_checkpointing=gradient_checkpointing
-            )
+            # train_model(
+            #     model_type=model_type,
+            #     model_name=model_name,
+            #     max_epochs=max_epochs,
+            #     batch_size=batch_size,
+            #     train_set_file_path=f'../resources/data/input/{dataset_name}/train/{control_class}/{text_folder}/',
+            #     base_output_dir=f'../resources/data/output/models/{dataset_name}/{model_type}/{control_class}_{text_folder}_{batch_size}b',
+            #     save_every=save_every,
+            #     gradient_checkpointing=gradient_checkpointing
+            # )
             
             
             # Pulizia aggressiva della memoria
@@ -123,16 +123,16 @@ def main():
             logger.info("Starting disease model training...")
             
             # Train disease model for max_epochs, saving every save_every epochs
-            train_model(
-                model_type=model_type,
-                model_name=model_name,
-                max_epochs=max_epochs,
-                batch_size=batch_size,
-                train_set_file_path=f'../resources/data/input/{dataset_name}/train/{disease_class}/{text_folder}/',
-                base_output_dir=f'../resources/data/output/models/{dataset_name}/{model_type}/{disease_class}_{text_folder}_{batch_size}b',
-                save_every=save_every,
-                gradient_checkpointing=gradient_checkpointing
-            )
+            # train_model(
+            #     model_type=model_type,
+            #     model_name=model_name,
+            #     max_epochs=max_epochs,
+            #     batch_size=batch_size,
+            #     train_set_file_path=f'../resources/data/input/{dataset_name}/train/{disease_class}/{text_folder}/',
+            #     base_output_dir=f'../resources/data/output/models/{dataset_name}/{model_type}/{disease_class}_{text_folder}_{batch_size}b',
+            #     save_every=save_every,
+            #     gradient_checkpointing=gradient_checkpointing
+            # )
             
             gc.collect()
             if torch.cuda.is_available():
@@ -257,17 +257,17 @@ def main():
             base_train_set_file_path = f'../resources/data/input/{dataset_name}/train/{control_class}/{text_folder}/'
             base_train_model_output_dir = f'../resources/data/output/models/{dataset_name}/{model_type}/leave_one_out/{control_class}_{text_folder}_{batch_size}b'
             
-            leave_one_out_trainingV1(
-                model_type,
-                model_name,
-                base_train_set_file_path,
-                base_train_model_output_dir,
-                "test_text.txt",
-                max_epochs,
-                batch_size,
-                save_every=save_every,
-                gradient_checkpointing=gradient_checkpointing
-            )
+            # leave_one_out_trainingV1(
+            #     model_type,
+            #     model_name,
+            #     base_train_set_file_path,
+            #     base_train_model_output_dir,
+            #     "test_text.txt",
+            #     max_epochs,
+            #     batch_size,
+            #     save_every=save_every,
+            #     gradient_checkpointing=gradient_checkpointing
+            # )
             
             gc.collect()
             torch.cuda.empty_cache()
@@ -277,17 +277,17 @@ def main():
             base_train_set_file_path = f'../resources/data/input/{dataset_name}/train/{disease_class}/{text_folder}/'
             base_train_model_output_dir = f'../resources/data/output/models/{dataset_name}/{model_type}/leave_one_out/{disease_class}_{text_folder}_{batch_size}b'
             
-            leave_one_out_trainingV1(
-                model_type,
-                model_name,
-                base_train_set_file_path,
-                base_train_model_output_dir,
-                "test_text.txt",
-                max_epochs,
-                batch_size,
-                save_every=save_every,
-                gradient_checkpointing=gradient_checkpointing
-            )
+            # leave_one_out_trainingV1(
+            #     model_type,
+            #     model_name,
+            #     base_train_set_file_path,
+            #     base_train_model_output_dir,
+            #     "test_text.txt",
+            #     max_epochs,
+            #     batch_size,
+            #     save_every=save_every,
+            #     gradient_checkpointing=gradient_checkpointing
+            # )
             
             gc.collect()
             torch.cuda.empty_cache()

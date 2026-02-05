@@ -1,0 +1,7 @@
+{
+    "summary_statistics": true,
+    "sliding_windows": true,
+    "histogram": true,
+    "n_windows": 5,
+    "hist_bins": 20
+  }
