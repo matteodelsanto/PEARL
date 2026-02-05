@@ -64,3 +64,7 @@ python -m run_experiment.py
 - **Submission Models**: `resources/data/output/submission_models/`
 - **Training Output Models**: `resources/data/output/models/`
 - **Perplexity**: `resources/data/output_gpt2/` and `resources/data/output_llama_lora/`
+
+## Models
+
+Trained models are accessible by contacting the author of the repository
